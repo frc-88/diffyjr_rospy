@@ -1,0 +1,15 @@
+#!/bin/bash
+
+if [ "$EUID" -eq 0 ]
+    then echo "Cannot be root!"
+    exit 1
+fi
+
+BASE_DIR=$(realpath "$(dirname $0)")
+
+python3 -m pip show pip-tools
+if [[ $? -ne 0 ]]; then
+    echo "pip-compile not found. Installing."
+    python3 -m pip install pip-tools
+fi
+pip-compile -v ${BASE_DIR}/requirements.in --output-file ${BASE_DIR}/install/requirements.txt

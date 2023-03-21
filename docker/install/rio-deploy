@@ -1,0 +1,3 @@
+#!/bin/bash
+cd /home/tj2/src
+python robot.py deploy

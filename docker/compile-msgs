@@ -1,0 +1,17 @@
+#!/bin/bash
+
+if [ "$EUID" -eq 0 ]
+    then echo "Cannot be root!"
+    exit 1
+fi
+
+BASE_DIR=$(realpath "$(dirname $0)")
+
+if [ -z $1 ]; then
+    ROS_MSG_DIR=~/tj2_ros/src/tj2_interfaces/msg
+    ROS_SRV_DIR=~/tj2_ros/src/tj2_interfaces/srv
+else
+    ROS_MSG_DIR=$1/msg
+    ROS_SRV_DIR=$1/srv
+fi
+

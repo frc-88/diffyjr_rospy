@@ -8,3 +8,10 @@ rospy-builder
 std-msgs
 sensor-msgs
 visualization-msgs
+
+# robotpy
+robotpy-commands-v2
+robotpy[navx]
+robotpy[ctre]
+robotpy[pathplannerlib]
+robotpy[rev]

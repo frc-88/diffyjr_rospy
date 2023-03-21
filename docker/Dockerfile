@@ -21,7 +21,6 @@ ENV PATH=/home/tj2/.local/bin${PATH:+:${PATH}}
 
 RUN python -m pip install robotpy
 RUN robotpy-installer download-python
-RUN robotpy-installer download robotpy
 
 COPY --chown=1001:1001 ./install /home/tj2/install
 

@@ -1,4 +1,4 @@
 #!/bin/bash
 
-robotpy-installer install-python --robot `cat install/team.txt`
-robotpy-installer install robotpy --robot `cat install/team.txt`
+robotpy-installer install-python $@
+robotpy-installer install robotpy $@

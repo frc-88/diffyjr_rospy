@@ -8,6 +8,7 @@ docker run -it --rm \
     --net="host" \
     --privileged \
     --stop-signal=SIGINT \
+    -v ${BASE_DIR}/install:/home/tj2/install:rw \
     -v ${BASE_DIR}/../src:/home/tj2/src:rw \
     diffyjr_rospy:latest \
     $@

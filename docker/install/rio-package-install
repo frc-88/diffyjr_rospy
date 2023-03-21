@@ -1,2 +1,2 @@
 #!/bin/bash
-robotpy-installer install -r install/requirements.txt --robot `cat install/team.txt`
+robotpy-installer install -r install/requirements.txt

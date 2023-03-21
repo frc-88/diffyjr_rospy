@@ -1,6 +1,9 @@
 # wpilib
 .deploy_cfg
 
+# genmsg
+docker/install/tj2_interfaces
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

@@ -1,18 +1,8 @@
 #!/usr/bin/env python3
-
-import os
-import importlib
-
-HOST_MACHINE = "10.0.88.44"
-os.environ["ROS_IP"] = "10.0.88.2"
-os.environ["ROS_MASTER_URI"] = f"http://{HOST_MACHINE}:11311"
-os.environ["ROS_PYTHON_LOG_CONFIG_FILE"] = "/home/lvuser/py/python_logging.yaml"
-
-import logging
 import rospy
 import wpilib
 from std_msgs.msg import Int64
-importlib.reload(logging)
+from configure_rospy import configure_rospy
 
 
 class MyRobot(wpilib.TimedRobot):
@@ -48,4 +38,5 @@ class MyRobot(wpilib.TimedRobot):
 
 
 if __name__ == "__main__":
+    configure_rospy()
     wpilib.run(MyRobot)

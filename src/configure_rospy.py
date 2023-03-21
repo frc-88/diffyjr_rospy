@@ -8,13 +8,14 @@ import rospy
 import wpilib
 
 def configure_rospy():
-    ros_environment_config_path = "/home/lvuser/py/ros_environment.yaml"
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    ros_environment_config_path = os.path.join(dir_path, "ros_environment.yaml")
     with open(ros_environment_config_path) as file:
         config = yaml.safe_load(file)
 
     os.environ["ROS_IP"] = config["ros_ip"]
     os.environ["ROS_MASTER_URI"] = config["ros_master_uri"]
-    os.environ["ROS_PYTHON_LOG_CONFIG_FILE"] = "/home/lvuser/py/python_logging.yaml"
+    os.environ["ROS_PYTHON_LOG_CONFIG_FILE"] = os.path.join(dir_path, "python_logging.yaml")
 
     importlib.reload(logging)
 

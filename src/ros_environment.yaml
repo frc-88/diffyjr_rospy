@@ -1,2 +1,2 @@
-ros_master_uri: "http://{HOST_MACHINE}:11311"
+ros_master_uri: "http://10.0.88.44:11311"
 ros_ip: "10.0.88.2"

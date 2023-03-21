@@ -1,3 +1,5 @@
 #!/bin/bash
+# https://stackoverflow.com/questions/74187896/os-getlogin-in-docker-container-throws-filenotfounderror
+echo $UID > /proc/self/loginuid
 cd /home/tj2/src
 python robot.py deploy

@@ -2,13 +2,12 @@
 
 BASE_DIR=$(realpath "$(dirname $0)")
 
-cd ${BASE_DIR}/..
-docker run --rm \
+docker run -it --rm \
     --name run_diffyjr_rospy \
     --restart="no" \
     --net="host" \
     --privileged \
     --stop-signal=SIGINT \
-    -v src:/home/tj2/src:rw \
+    -v ${BASE_DIR}/../src:/home/tj2/src:rw \
     diffyjr_rospy:latest \
     $@

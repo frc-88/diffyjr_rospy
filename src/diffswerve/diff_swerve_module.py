@@ -11,10 +11,10 @@ from diffswerve import constants
 from diffswerve.diff_swerve_motor import DiffSwerveMotor
 from diffswerve.canified_pwm_encoder import CANifiedPWMEncoder
 
-from wpimath.system import LinearSystem_2_2_2 as LinearSystem
-from wpimath.system import LinearSystemLoop_2_2_2 as LinearSystemLoop
-from wpimath.estimator import KalmanFilter_2_2_2 as KalmanFilter
-from wpimath.controller import LinearQuadraticRegulator_2_2 as LinearQuadraticRegulator
+from wpimath.system import LinearSystem_3_2_3 as LinearSystem
+from wpimath.system import LinearSystemLoop_3_2_3 as LinearSystemLoop
+from wpimath.estimator import KalmanFilter_3_2_3 as KalmanFilter
+from wpimath.controller import LinearQuadraticRegulator_3_2 as LinearQuadraticRegulator
 
 SystemStateArray = Annotated[npt.NDArray[np.float64], Literal[3, 1]]
 SystemVelocityStateArray = Annotated[npt.NDArray[np.float64], Literal[2, 1]]
@@ -255,6 +255,13 @@ class DiffSwerveModule:
     # ---
 
     def get_angular_velocities(self) -> SystemVelocityStateArray:
+        """
+        get module velocities:
+        [
+            [azimuth angular velocity],
+            [wheel angular velocity]
+        ]
+        """
         return self.get_differential_outputs(
             self.lo_motor.get_velocity(), self.hi_motor.get_velocity()
         )

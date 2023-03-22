@@ -5,9 +5,11 @@ geometry-msgs
 rosservice
 rospy
 rospy-builder
+nav-msgs
 std-msgs
 sensor-msgs
 visualization-msgs
+tf-conversions
 
 # robotpy
 robotpy-commands-v2

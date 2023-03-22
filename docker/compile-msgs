@@ -16,10 +16,10 @@ else
     SRC_ROS_SRV_DIR=${INTERFACES_BASE_DIR}/srv
 fi
 
-ROS_MSG_DEP_DIR=${BASE_DIR}/install/tj2_interfaces
+ROS_MSG_DEP_DIR=${BASE_DIR}/../genmsg
 
-ROS_MSG_DIR=${BASE_DIR}/install/tj2_interfaces/msg
-ROS_SRV_DIR=${BASE_DIR}/install/tj2_interfaces/srv
+ROS_MSG_DIR=${BASE_DIR}/../genmsg/tj2_interfaces/msg
+ROS_SRV_DIR=${BASE_DIR}/../genmsg/tj2_interfaces/srv
 
 mkdir -p ${ROS_MSG_DIR}
 mkdir -p ${ROS_SRV_DIR}
@@ -38,9 +38,18 @@ if [ ! -d ${ROS_MSG_DEP_DIR}/common_msgs ] ; then
     git clone https://github.com/ros/common_msgs.git ${ROS_MSG_DEP_DIR}/common_msgs
 fi
 
-GEN_ROS_MSG_DIR=/home/tj2/install/tj2_interfaces
+if [ ! -d ${ROS_MSG_DEP_DIR}/vision_msgs ] ; then
+    git clone https://github.com/ros-perception/vision_msgs.git -b noetic-devel ${ROS_MSG_DEP_DIR}/vision_msgs
+fi
 
-${BASE_DIR}/run-in-container rospy-build genmsg ${GEN_ROS_MSG_DIR} -s ${GEN_ROS_MSG_DIR}
-${BASE_DIR}/run-in-container pip install -e ${GEN_ROS_MSG_DIR} --quiet && \
-${BASE_DIR}/run-in-container mv ${GEN_ROS_MSG_DIR}/tj2_interfaces /home/tj2/src
-${BASE_DIR}/run-in-container mv ${GEN_ROS_MSG_DIR}/tj2_interfaces.egg-info /home/tj2/src
+GEN_ROS_MSG_DIR=/home/tj2/genmsg
+
+${BASE_DIR}/run-in-container rospy-build genmsg ${GEN_ROS_MSG_DIR}/tj2_interfaces -s ${GEN_ROS_MSG_DIR}
+${BASE_DIR}/run-in-container pip install -e ${GEN_ROS_MSG_DIR}/tj2_interfaces --quiet && \
+${BASE_DIR}/run-in-container rm -r /home/tj2/src/tj2_interfaces
+${BASE_DIR}/run-in-container mv ${GEN_ROS_MSG_DIR}/tj2_interfaces/tj2_interfaces /home/tj2/src
+
+${BASE_DIR}/run-in-container rospy-build genmsg ${GEN_ROS_MSG_DIR}/vision_msgs -s ${GEN_ROS_MSG_DIR}
+${BASE_DIR}/run-in-container pip install -e ${GEN_ROS_MSG_DIR}/vision_msgs --quiet && \
+${BASE_DIR}/run-in-container rm -r /home/tj2/src/vision_msgs
+${BASE_DIR}/run-in-container mv ${GEN_ROS_MSG_DIR}/vision_msgs/vision_msgs /home/tj2/src

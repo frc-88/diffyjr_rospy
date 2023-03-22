@@ -1,5 +1,6 @@
 import commands2
 from subsystems.drivetrain import Drivetrain
+from subsystems.ros_interface import RosInterface
 from commands.passthrough_cmdvel_command import PassthroughCmdVelCommand
 from commands.coast_drive_motors import CoastDriveMotors
 from wpilib import RobotController
@@ -14,6 +15,7 @@ from wpimath.geometry import Rotation2d
 class RobotContainer:
     def __init__(self) -> None:
         self.drivetrain = Drivetrain()
+        self.ros_interface = RosInterface(self.drivetrain)
         self.user_button = commands2.Trigger(lambda: RobotController.getUserButton())
 
         self.passthrough_ros_command = PassthroughCmdVelCommand(self.drivetrain)
@@ -39,6 +41,9 @@ class RobotContainer:
     def set_enable_drive(self, enabled: bool) -> None:
         self.drivetrain.set_enabled(enabled)
         self.drivetrain.set_coast(not enabled)
+
+    def slow_periodic(self):
+        self.ros_interface.slow_periodic()
 
     def fast_periodic(self):
         self.drivetrain.fast_periodic()

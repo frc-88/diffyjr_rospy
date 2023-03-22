@@ -24,6 +24,7 @@ class MyRobot(commands2.TimedCommandRobot):
         self.addPeriodic(
             self.container.fast_periodic, constants.DiffSwerveModule.kDt, 0.0025
         )
+        self.addPeriodic(self.container.slow_periodic, 1.0 / 5.0, 0.02)
         print("Robot initialized!")
 
     def disabledInit(self) -> None:

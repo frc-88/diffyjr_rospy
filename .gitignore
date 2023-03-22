@@ -2,7 +2,7 @@
 .deploy_cfg
 
 # genmsg
-docker/install/tj2_interfaces
+genmsg/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -1,5 +1,6 @@
 from navx import AHRS
 from commands2 import SubsystemBase
+from wpimath.geometry import Pose2d
 from wpimath.kinematics import ChassisSpeeds
 from diffswerve.diff_swerve_chassis import DiffSwerveChassis
 
@@ -24,6 +25,9 @@ class Drivetrain(SubsystemBase):
 
     def drive(self, chassis_speeds: ChassisSpeeds) -> None:
         self.chassis.drive(chassis_speeds)
+
+    def get_pose(self) -> Pose2d:
+        return self.chassis.get_odometry_pose()
 
     def stop(self) -> None:
         self.chassis.stop()

@@ -3,6 +3,12 @@ from subsystems.drivetrain import Drivetrain
 from commands.passthrough_cmdvel_command import PassthroughCmdVelCommand
 from commands.coast_drive_motors import CoastDriveMotors
 from wpilib import RobotController
+from commands.follow_holonomic_trajectory import (
+    FollowHolonomicTrajectory,
+    FollowTrajectoryConfig,
+)
+from util.trajectory_helper import TrajectoryHelper
+from wpimath.geometry import Rotation2d
 
 
 class RobotContainer:
@@ -12,6 +18,14 @@ class RobotContainer:
 
         self.passthrough_ros_command = PassthroughCmdVelCommand(self.drivetrain)
         self.coast_drive_motors = CoastDriveMotors(self.drivetrain)
+        self.follow_trajectory = FollowHolonomicTrajectory(
+            self.drivetrain,
+            FollowTrajectoryConfig(),
+            TrajectoryHelper.from_pathweaver_json("test.wpilib.json"),
+            Rotation2d(),
+            Rotation2d(),
+            True,
+        )
 
         self.configure_default_commands()
 
@@ -20,7 +34,7 @@ class RobotContainer:
         self.user_button.whileTrue(self.coast_drive_motors)
 
     def get_autonomous_command(self) -> commands2.Command:
-        return commands2.WaitCommand(15.0)
+        return self.follow_trajectory
 
     def set_enable_drive(self, enabled: bool) -> None:
         self.drivetrain.set_enabled(enabled)

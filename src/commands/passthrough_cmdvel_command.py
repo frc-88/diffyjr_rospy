@@ -12,10 +12,13 @@ class PassthroughCmdVelCommand(CommandBase):
         self.drivetrain = drivetrain
         self.cmd_vel_sub: Optional[rospy.Subscriber] = None
         self.chassis_speeds = ChassisSpeeds()
-    
+        self.addRequirements(self.drive)
+
     def init_subscriber(self) -> None:
-        self.cmd_vel_sub = rospy.Subscriber("/tj2/cmd_vel", Twist, self.twist_callback, queue_size=10)
-    
+        self.cmd_vel_sub = rospy.Subscriber(
+            "/tj2/cmd_vel", Twist, self.twist_callback, queue_size=10
+        )
+
     def close_subscriber(self) -> None:
         if self.cmd_vel_sub:
             self.cmd_vel_sub.unregister()
@@ -27,7 +30,7 @@ class PassthroughCmdVelCommand(CommandBase):
 
     def initialize(self) -> None:
         self.init_subscriber()
-    
+
     def execute(self) -> None:
         if not self.cmd_vel_sub:
             print("cmd_vel topic is not connected! Can't command from ROS.")

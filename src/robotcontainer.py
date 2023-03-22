@@ -14,8 +14,14 @@ from wpimath.geometry import Rotation2d
 
 class RobotContainer:
     def __init__(self) -> None:
+        print("Initializing robot container")
+
         self.drivetrain = Drivetrain()
+        print("Drive train initialized")
+
         self.ros_interface = RosInterface(self.drivetrain)
+        print("ROS interface initialized")
+
         self.user_button = commands2.Trigger(lambda: RobotController.getUserButton())
 
         self.passthrough_ros_command = PassthroughCmdVelCommand(self.drivetrain)

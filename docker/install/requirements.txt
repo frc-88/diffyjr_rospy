@@ -1,5 +1,6 @@
 # ROS stuff
 --extra-index-url https://rospypi.github.io/simple/
+actionlib-msgs
 diagnostic-msgs
 geometry-msgs
 rosservice
@@ -9,7 +10,6 @@ nav-msgs
 std-msgs
 sensor-msgs
 visualization-msgs
-tf-conversions
 
 # robotpy
 robotpy-commands-v2

@@ -1,5 +1,6 @@
+import time
 from ctre import (
-    TalonFX,
+    WPI_TalonFX,
     ErrorCode,
     NeutralMode,
     StatusFrame,
@@ -12,9 +13,11 @@ from diffswerve import constants
 
 class DiffSwerveMotor:
     def __init__(self, can_id: int) -> None:
+        print(f"Initializing falcon {can_id}")
         self.can_id = can_id
-        self.motor = TalonFX(self.hi_can_id)
+        self.motor = WPI_TalonFX(self.can_id)
         self.initialize_falcons()
+        print(f"Falcon {self.can_id} is ready")
 
     def initialize_falcons(self):
         is_ready = False
@@ -23,11 +26,12 @@ class DiffSwerveMotor:
                 self.set_falcon_parameters(self.motor)
             except BaseException as e:
                 print(f"Failed to initialize Falcon motor. Trying again. {e}")
-                self.motor = TalonFX(self.can_id)
+                self.motor = WPI_TalonFX(self.can_id)
+                time.sleep(0.25)
                 continue
             is_ready = True
 
-    def set_falcon_parameters(self, motor: TalonFX) -> None:
+    def set_falcon_parameters(self, motor: WPI_TalonFX) -> None:
         self.check_error_code(motor.configFactoryDefault())
         motor.setInverted(False)
         motor.setSensorPhase(False)

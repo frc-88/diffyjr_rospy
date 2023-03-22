@@ -10,8 +10,13 @@ from diffswerve.diff_swerve_chassis import DiffSwerveChassis
 class Drivetrain(SubsystemBase):
     def __init__(self):
         super().__init__()
-        self.imu = AHRS()
+        print("Drive train initializing")
+
+        self.imu = AHRS.create_spi()
+        print("IMU initialized")
+
         self.chassis = DiffSwerveChassis(self.imu)
+        print("Diff Swerve initialized")
 
     def periodic(self) -> None:
         self.chassis.periodic()

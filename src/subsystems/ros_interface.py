@@ -1,6 +1,6 @@
 from typing import List
 import rospy
-import tf_conversions
+from wpimath.geometry import Quaternion, Rotation3d
 
 from wpimath import units
 from wpilib import DriverStation
@@ -18,6 +18,7 @@ class RosInterface(SubsystemBase):
     GRAVITY = 9.81
 
     def __init__(self, drive: Drivetrain) -> None:
+        super().__init__()
         self.drive = drive
 
         self.class_names: List[str] = []
@@ -55,9 +56,15 @@ class RosInterface(SubsystemBase):
         ]
         # fmt: on
 
-        self.match_time_publisher = rospy.Publisher("/tj2/match_time")
-        self.is_autonomous_publisher = rospy.Publisher("/tj2/is_autonomous")
-        self.team_color_publisher = rospy.Publisher("/tj2/team_color")
+        self.match_time_publisher = rospy.Publisher(
+            "/tj2/match_time", Float64, queue_size=10
+        )
+        self.is_autonomous_publisher = rospy.Publisher(
+            "/tj2/is_autonomous", Bool, queue_size=10
+        )
+        self.team_color_publisher = rospy.Publisher(
+            "/tj2/team_color", String, queue_size=10
+        )
 
         self.labels_subscriber = rospy.Subscriber(
             "/tj2/labels", Labels, self.labels_callback, queue_size=10
@@ -69,7 +76,7 @@ class RosInterface(SubsystemBase):
     def slow_periodic(self) -> None:
         for index, module in enumerate(self.drive.chassis.modules):
             state = module.get_state()
-            self.publish_joint_state(index, state.angle)
+            self.publish_joint_state(index, state.angle.radians())
 
     def periodic(self) -> None:
         self.publish_odom()
@@ -79,19 +86,17 @@ class RosInterface(SubsystemBase):
         pose = self.drive.chassis.get_odometry_pose()
         speeds = self.drive.chassis.get_chassis_speeds()
 
-        quat = tf_conversions.transformations.quaternion_from_euler(
-            0.0, 0.0, pose.rotation().radians()
-        )
+        quat = Rotation3d(0.0, 0.0, pose.rotation().radians()).getQuaternion()
 
         odom = Odometry()
         odom.header.frame_id = "odom"
         odom.child_frame_id = "base_link"
         odom.pose.pose.position.x = pose.x
         odom.pose.pose.position.y = pose.y
-        odom.pose.pose.orientation.x = quat[0]
-        odom.pose.pose.orientation.y = quat[1]
-        odom.pose.pose.orientation.z = quat[2]
-        odom.pose.pose.orientation.w = quat[3]
+        odom.pose.pose.orientation.x = quat.X()
+        odom.pose.pose.orientation.y = quat.Y()
+        odom.pose.pose.orientation.z = quat.Z()
+        odom.pose.pose.orientation.w = quat.W()
         odom.pose.covariance = self.pose_covariance
         odom.twist.twist.linear.x = speeds.vx
         odom.twist.twist.linear.y = speeds.vy
@@ -104,15 +109,16 @@ class RosInterface(SubsystemBase):
         msg = NavX()
         msg.header.frame_id = "imu"
 
-        quat = tf_conversions.transformations.quaternion_from_euler(
+        quat = Rotation3d(
             units.degreesToRadians(self.drive.imu.getRoll()),
             units.degreesToRadians(self.drive.imu.getPitch()),
             units.degreesToRadians(-self.drive.imu.getYaw()),
-        )
+        ).getQuaternion()
 
-        msg.orientation.x = quat[0]msg.orientation.y = quat[1]
-        msg.orientation.z = quat[2]
-        msg.orientation.w = quat[3]
+        msg.orientation.x = quat.X()
+        msg.orientation.y = quat.Y()
+        msg.orientation.z = quat.Z()
+        msg.orientation.w = quat.W()
 
         msg.angular_velocity.z = units.degreesToRadians(-self.drive.imu.getRate())
         msg.linear_acceleration.x = self.drive.imu.getWorldLinearAccelX() * self.GRAVITY

@@ -56,6 +56,9 @@ class DiffSwerveModule:
         azimuth_pwm_channel: int,
         azimuth_offset_radians: float,
     ) -> None:
+        print(
+            f"Initializing Diff Swerve module at {module_location} ({hi_can_id}-{lo_can_id})"
+        )
         self.module_location = module_location
         self.lo_can_id = lo_can_id
         self.hi_can_id = hi_can_id
@@ -92,6 +95,9 @@ class DiffSwerveModule:
         ) = self.init_control_loop()
         self.input: SystemInputArray = np.zeros((2, 1))
         self.reference: SystemStateArray = np.zeros((3, 1))
+        print(
+            f"Diff Swerve module at {module_location} ({hi_can_id}-{lo_can_id}) is ready"
+        )
 
     # ---
     # DiffSwerveChassis interfaces
@@ -107,8 +113,8 @@ class DiffSwerveModule:
     def set_enabled(self, enabled: bool) -> None:
         self.is_enabled = enabled
 
-    def get_position(self) -> float:
-        return self.wheel_position
+    def get_position(self) -> SwerveModulePosition:
+        return SwerveModulePosition(self.wheel_position, self.get_module_angle())
 
     def update(self) -> None:
         self.swerve_control_loop.setNextR(self.reference)
@@ -116,7 +122,9 @@ class DiffSwerveModule:
         azimuth_velocity = state[0, 0]
         wheel_velocity = state[1, 0]
         self.swerve_control_loop.correct(
-            self.get_module_angle(), azimuth_velocity, wheel_velocity
+            np.array(
+                [[self.get_module_angle().radians(), azimuth_velocity, wheel_velocity]]
+            ).T
         )
         if not self.predict():
             return
@@ -176,6 +184,7 @@ class DiffSwerveModule:
                 constants.DiffSwerveModule.SENSOR_AZIMUTH_ANG_VELOCITY_NOISE,
                 constants.DiffSwerveModule.SENSOR_WHEEL_ANG_VELOCITY_NOISE,
             ),
+            constants.DiffSwerveModule.kDt,
         )
 
         control_loop = LinearSystemLoop(
@@ -196,17 +205,16 @@ class DiffSwerveModule:
         K_t = motor_model.Kt  # Nm / Amp
         K_v = motor_model.Kv  # rad / s / Volt
         R_ohm = motor_model.R
-        A_subset = (
-            self.inv_diff_matrix @ self.inv_diff_matrix @ (-K_t / (K_v * R_ohm * J_w))
-        )
-        B_subset = self.inv_diff_matrix @ (K_t / (R_ohm * J_w))
+        A_subset = self.inv_diff_matrix @ self.inv_diff_matrix
+        A_subset *= -K_t / (K_v * R_ohm * J_w)
+        B_subset = self.inv_diff_matrix * (K_t / (R_ohm * J_w))
 
         A_mat = np.zeros((3, 3))
         A_mat[0, 1] = 1.0
         A_mat[1:3, 1:3] = A_subset
 
         B_mat = np.zeros((3, 2))
-        B_mat[1:3, 1:3] = B_subset
+        B_mat[1:3, 0:2] = B_subset
 
         C_mat = np.eye(3)
         D_mat = np.zeros((3, 2))
@@ -223,15 +231,15 @@ class DiffSwerveModule:
         )
         feed_forward_volts = input_vels * constants.DiffSwerveModule.FEED_FORWARD
 
-        error = self.compute_error_wrapped(
-            self.swerve_control_loop.nextR(),
-            self.swerve_control_loop.xhat(),
-            -math.pi,
-            math.pi,
-        )
+        next_r = np.array(self.swerve_control_loop.nextR()).reshape((3, 1))
+        x_hat = np.array(self.swerve_control_loop.xhat()).reshape((3, 1))
+
+        error = self.compute_error_wrapped(next_r, x_hat, -math.pi, math.pi)
+        control_K = np.array(self.swerve_controller.K()).reshape((2, 3))
         clamp_input = self.swerve_control_loop.clampInput(
-            (self.swerve_controller.K @ error) + feed_forward_volts
+            (control_K @ error) + feed_forward_volts
         )
+        clamp_input = np.array(clamp_input).reshape((2, 1))
         if math.isnan(clamp_input[0, 0]) or math.isnan(clamp_input[1, 0]):
             print("Input is NaN! Resetting controller.")
             self.swerve_control_loop.reset(np.zeros((3, 1)))
@@ -266,7 +274,7 @@ class DiffSwerveModule:
             self.lo_motor.get_velocity(), self.hi_motor.get_velocity()
         )
 
-    def update_wheel_position(self, wheel_velocity: float) -> float:
+    def update_wheel_position(self, wheel_velocity: float) -> None:
         currentTime = self.get_time()
         dt = currentTime - self.prev_position_update_time
         self.prev_position_update_time = currentTime
@@ -284,7 +292,7 @@ class DiffSwerveModule:
     def get_differential_outputs(
         self, lo_motor_omega, hi_motor_omega
     ) -> SystemVelocityStateArray:
-        return self.diff_matrix @ np.narray([[lo_motor_omega, hi_motor_omega]]).T
+        return self.diff_matrix @ np.array([[lo_motor_omega, hi_motor_omega]]).T
 
     # ---
     # Input helpers

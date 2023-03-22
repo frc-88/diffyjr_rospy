@@ -12,7 +12,7 @@ class PassthroughCmdVelCommand(CommandBase):
         self.drivetrain = drivetrain
         self.cmd_vel_sub: Optional[rospy.Subscriber] = None
         self.chassis_speeds = ChassisSpeeds()
-        self.addRequirements(self.drive)
+        self.addRequirements(self.drivetrain)
 
     def init_subscriber(self) -> None:
         self.cmd_vel_sub = rospy.Subscriber(
@@ -24,11 +24,12 @@ class PassthroughCmdVelCommand(CommandBase):
             self.cmd_vel_sub.unregister()
 
     def twist_callback(self, msg: Twist) -> None:
-        self.chassis_speeds.vx = msg.linear.vx
-        self.chassis_speeds.vy = msg.linear.vy
+        self.chassis_speeds.vx = msg.linear.x
+        self.chassis_speeds.vy = msg.linear.y
         self.chassis_speeds.omega = msg.angular.z
 
     def initialize(self) -> None:
+        print("Using passthrough ROS command to drive")
         self.init_subscriber()
 
     def execute(self) -> None:

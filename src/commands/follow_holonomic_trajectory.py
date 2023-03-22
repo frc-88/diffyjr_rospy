@@ -1,9 +1,9 @@
 import math
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from commands2 import CommandBase
 from wpimath.controller import (
     HolonomicDriveController,
-    ProfiledPIDController,
+    ProfiledPIDControllerRadians,
     PIDController,
 )
 from wpimath.trajectory import TrapezoidProfile, Trajectory
@@ -26,9 +26,9 @@ class PidConfig:
 
 @dataclass
 class FollowTrajectoryConfig:
-    vx_pid: PidConfig = PidConfig()
-    vy_pid: PidConfig = PidConfig()
-    vtheta_pid: PidConfig = PidConfig()
+    vx_pid: PidConfig = field(default_factory=lambda: PidConfig())
+    vy_pid: PidConfig = field(default_factory=lambda: PidConfig())
+    vtheta_pid: PidConfig = field(default_factory=lambda: PidConfig())
     max_angular_vel: float = math.pi  # radians/second
     max_angular_accel: float = math.pi  # radians/second^2
     x_tolerance: float = 0.1  # meters
@@ -70,7 +70,7 @@ class FollowHolonomicTrajectory(CommandBase):
             PIDController(
                 self.config.vy_pid.kP, self.config.vy_pid.kI, self.config.vy_pid.kD
             ),
-            ProfiledPIDController(
+            ProfiledPIDControllerRadians(
                 self.config.vtheta_pid.kP,
                 self.config.vtheta_pid.kI,
                 self.config.vtheta_pid.kD,
@@ -93,7 +93,7 @@ class FollowHolonomicTrajectory(CommandBase):
             if (
                 offset.translation().distance(Translation2d())
                 > self.config.initial_distance_limit
-                or offset.rotation() > self.config.initial_rotation_limit
+                or offset.rotation().radians() > self.config.initial_rotation_limit
             ):
                 print("Canceling holomic trajectory! Initial trajectory limit reached.")
                 self.cancel()

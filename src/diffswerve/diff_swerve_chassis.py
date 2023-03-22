@@ -1,4 +1,6 @@
 import math
+import time
+import traceback
 from typing import Tuple
 from navx import AHRS
 from wpilib import RobotController
@@ -19,6 +21,7 @@ from diffswerve import constants
 
 class DiffSwerveChassis:
     def __init__(self, imu: AHRS) -> None:
+        print("Initializing Diff Swerve")
         self.is_field_relative = False
         self.angle_controller_enabled = False
         self.setpoint = ChassisSpeeds()
@@ -65,13 +68,13 @@ class DiffSwerveChassis:
             constants.DioIDs.ENCODER_FR,
             constants.DriveTrain.FRONT_RIGHT_ENCODER_OFFSET,
         )
-        self.modules: Tuple[DiffSwerveModule] = (
+        self.modules: Tuple[DiffSwerveModule, ...] = (
             self.front_left,
             self.back_left,
             self.back_right,
             self.front_right,
         )
-        self.module_locations: Tuple[Translation2d] = tuple(
+        self.module_locations: Tuple[Translation2d, ...] = tuple(
             [module.get_module_location() for module in self.modules]
         )
         self.module_positions = tuple(
@@ -177,13 +180,24 @@ class DiffSwerveChassis:
     def periodic(self) -> None:
         # should run at 50 Hz
         self.update_module_positions()
-        self.odometry.update(self.get_imu_yaw(), self.module_positions)
+        self.odometry.update(
+            self.get_imu_yaw(),
+            self.module_positions[0],
+            self.module_positions[1],
+            self.module_positions[2],
+            self.module_positions[3],
+        )
         self.update_ideal_state(self.setpoint)
 
     def controller_periodic(self) -> None:
         # this should run at 200 Hz
-        for module in self.modules:
-            module.update()
+        try:
+            for module in self.modules:
+                module.update()
+        except BaseException as e:
+            print(f"Error in controller periodic: {str(e)}")
+            print(traceback.format_exc())
+            time.sleep(0.25)
 
     # ---
     # Internal updates
@@ -198,7 +212,7 @@ class DiffSwerveChassis:
         self.set_ideal_state(self.module_states_with_constraints(setpoint))
 
     def set_ideal_state(
-        self, *swerve_module_states: Tuple[SwerveModuleState, ...]
+        self, swerve_module_states: Tuple[SwerveModuleState, ...]
     ) -> None:
         for index in range(len(self.modules)):
             self.modules[index].set_ideal_state(swerve_module_states[index])

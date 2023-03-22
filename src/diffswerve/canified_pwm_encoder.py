@@ -11,6 +11,7 @@ class CANifiedPWMEncoder:
         inverted: bool,
         update_rate: int = 5,  # milliseconds
     ) -> None:
+        print(f"Initializing CANifiedPWMEncoder {canifier_id}")
         self.canifier_id = canifier_id
         self.offset = offset
         self.ratio = ratio
@@ -36,6 +37,7 @@ class CANifiedPWMEncoder:
             self.canifier.setStatusFramePeriod(status_frame, self.update_rate)
 
         self.prev_position = 0.0
+        print(f"CANifiedPWMEncoder {self.canifier_id} is ready")
 
     def get_position(self) -> float:
         error_code, data = self.canifier.getPWMInput(self.channel)

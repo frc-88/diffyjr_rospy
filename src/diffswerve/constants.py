@@ -1,9 +1,10 @@
 import math
-from enum import Enum
+from dataclasses import dataclass
 from wpimath import units
 
 
-class TalonIds(Enum):
+@dataclass
+class TalonIds:
     FL_HI_FALCON = 16
     FL_LO_FALCON = 1
     BL_HI_FALCON = 2
@@ -14,11 +15,13 @@ class TalonIds(Enum):
     FR_LO_FALCON = 14
 
 
-class CanIds(Enum):
+@dataclass
+class CanIds:
     CANIFIER = 1
 
 
-class DioIDs(Enum):
+@dataclass
+class DioIDs:
     ENCODER_FL = 0
     ENCODER_BL = 1
     ENCODER_BR = 2
@@ -28,7 +31,8 @@ class DioIDs(Enum):
 EPSILON = 0.00001
 
 
-class DriveTrain(Enum):
+@dataclass
+class DriveTrain:
     WIDTH = 0.30861  # meters
     LENGTH = 0.30861  # meters
     FRONT_LEFT_ENCODER_OFFSET = math.radians(140.449)  # module 0 offset degrees
@@ -67,7 +71,8 @@ class DriveTrain(Enum):
     ENABLE_ANG_ACCEL_CONSTRAINT = False
 
 
-class DiffSwerveModule(Enum):
+@dataclass
+class DiffSwerveModule:
     kDt = 0.005  # update rate of our modules 5ms.
     FALCON_FREE_SPEED = units.rotationsPerMinuteToRadiansPerSecond(6380.0)
     TIMEOUT = 500  # CAN sensor timeout

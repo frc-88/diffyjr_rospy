@@ -1,11 +1,19 @@
 #!/usr/bin/env python3
+import time
 import typing
-import rospy
 import wpilib
+import traceback
 import commands2
 from configure_rospy import configure_rospy
 from robotcontainer import RobotContainer
 from diffswerve import constants
+
+try:
+    import rospy
+except ImportError:
+    print("Failed to import rospy")
+    while True:
+        time.sleep(1.0)
 
 
 class MyRobot(commands2.TimedCommandRobot):
@@ -65,5 +73,13 @@ class MyRobot(commands2.TimedCommandRobot):
 
 
 if __name__ == "__main__":
-    configure_rospy()
-    wpilib.run(MyRobot)
+    try:
+        configure_rospy()
+        wpilib.run(MyRobot)
+    except SystemExit:
+        pass
+    except BaseException as e:
+        print(f"Encountered exception while initializing: {str(e)}")
+        print(traceback.format_exc())
+        while True:
+            time.sleep(1.0)

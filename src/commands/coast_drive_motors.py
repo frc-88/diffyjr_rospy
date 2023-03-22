@@ -7,7 +7,7 @@ class CoastDriveMotors(CommandBase):
     def __init__(self, drivetrain: Drivetrain) -> None:
         super().__init__()
         self.drivetrain = drivetrain
-        self.addRequirements(self.drive)
+        self.addRequirements(self.drivetrain)
 
     def execute(self) -> None:
         self.drivetrain.stop()

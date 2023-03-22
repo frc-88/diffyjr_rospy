@@ -14,7 +14,7 @@ class RobotContainer:
         self.coast_drive_motors = CoastDriveMotors(self.drivetrain)
 
         self.configure_default_commands()
-    
+
     def configure_default_commands(self) -> None:
         self.drivetrain.setDefaultCommand(self.passthrough_ros_command)
         self.user_button.whileTrue(self.coast_drive_motors)
@@ -27,4 +27,4 @@ class RobotContainer:
         self.drivetrain.set_coast(not enabled)
 
     def fast_periodic(self):
-        pass
+        self.drivetrain.fast_periodic()

@@ -5,6 +5,7 @@ import wpilib
 import commands2
 from configure_rospy import configure_rospy
 from robotcontainer import RobotContainer
+from diffswerve import constants
 
 
 class MyRobot(commands2.TimedCommandRobot):
@@ -20,7 +21,9 @@ class MyRobot(commands2.TimedCommandRobot):
         )
         print("Node initialized")
         self.container = RobotContainer()
-        self.addPeriodic(self.container.fast_periodic, 0.005, 0.0025)
+        self.addPeriodic(
+            self.container.fast_periodic, constants.DiffSwerveModule.kDt, 0.0025
+        )
         print("Robot initialized!")
 
     def disabledInit(self) -> None:
